@@ -68,12 +68,16 @@ class AnsiParser:
     _regex_tag = re.compile('\\\\?</?((?:[fb]g\\s)?[^<>\\s]*)>')
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self._tokens = []
         self._tags = []
         self._color_tokens = []
         self._text = []
 
     def feed(self, text):
+        self.reset()
         pos = 0
         for match in self._regex_tag.finditer(text):
             start, end = match.span()
