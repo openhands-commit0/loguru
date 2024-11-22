@@ -1,6 +1,10 @@
 import re
 from string import Formatter
 
+def ansi_escape(codes):
+    pattern = '|'.join(re.escape(k) for k in sorted(codes, key=len, reverse=True))
+    return re.compile(f'({pattern})')
+
 class Style:
     RESET_ALL = 0
     BOLD = 1
