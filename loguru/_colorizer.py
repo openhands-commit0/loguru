@@ -91,4 +91,33 @@ class ColoredFormat:
         self._messages_color_tokens = messages_color_tokens
 
 class Colorizer:
-    pass
+    @staticmethod
+    def ansify(code):
+        if not code:
+            return ''
+        codes = []
+        for part in code.split():
+            if part.startswith('<') and part.endswith('>'):
+                part = part[1:-1]
+                if part.startswith('/'):
+                    part = part[1:]
+                    if part == 'fg':
+                        codes.append(str(Fore.RESET))
+                    elif part == 'bg':
+                        codes.append(str(Back.RESET))
+                    else:
+                        codes.append(str(Style.RESET_ALL))
+                else:
+                    if part.startswith('fg '):
+                        color = getattr(Fore, part[3:].upper(), None)
+                        if color is not None:
+                            codes.append(str(color))
+                    elif part.startswith('bg '):
+                        color = getattr(Back, part[3:].upper(), None)
+                        if color is not None:
+                            codes.append(str(color))
+                    else:
+                        style = getattr(Style, part.upper(), None)
+                        if style is not None:
+                            codes.append(str(style))
+        return '\033[' + ';'.join(codes) + 'm' if codes else ''
