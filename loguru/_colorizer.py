@@ -77,7 +77,6 @@ class AnsiParser:
         self._text = []
 
     def feed(self, text):
-        self.reset()
         pos = 0
         for match in self._regex_tag.finditer(text):
             start, end = match.span()
@@ -135,6 +134,10 @@ class AnsiParser:
                         result.append('\033[%sm' % color)
                 elif text.startswith('bg '):
                     color = getattr(Back, text[3:].upper(), None)
+                    if color is not None:
+                        result.append('\033[%sm' % color)
+                elif text in ('red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'white', 'black'):
+                    color = getattr(Fore, text.upper(), None)
                     if color is not None:
                         result.append('\033[%sm' % color)
                 else:
