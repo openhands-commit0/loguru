@@ -74,8 +74,6 @@ class AnsiParser:
         self._text = []
 
     def feed(self, text):
-        self._tokens = []
-        self._tags = []
         pos = 0
         for match in self._regex_tag.finditer(text):
             start, end = match.span()
