@@ -98,9 +98,45 @@ class AnsiParser:
             pos = end
         if pos < len(text):
             self._tokens.append((TokenType.TEXT, text[pos:]))
-        if self._tags:
+
+    def done(self, strict=True):
+        if strict and self._tags:
             raise ValueError("Unclosed tags: %s" % ', '.join(self._tags))
         return self._tokens
+
+    def strip(self, tokens):
+        result = []
+        for token_type, text in tokens:
+            if token_type == TokenType.TEXT:
+                result.append(text)
+        return ''.join(result)
+
+    def colorize(self, tokens, style):
+        result = []
+        for token_type, text in tokens:
+            if token_type == TokenType.TEXT:
+                result.append(text)
+            elif token_type == TokenType.ANSI:
+                if text.startswith('fg '):
+                    color = getattr(Fore, text[3:].upper(), None)
+                    if color is not None:
+                        result.append('\033[%sm' % color)
+                elif text.startswith('bg '):
+                    color = getattr(Back, text[3:].upper(), None)
+                    if color is not None:
+                        result.append('\033[%sm' % color)
+                else:
+                    style_code = getattr(Style, text.upper(), None)
+                    if style_code is not None:
+                        result.append('\033[%sm' % style_code)
+            elif token_type == TokenType.CLOSING:
+                if text == '/fg':
+                    result.append('\033[%sm' % Fore.RESET)
+                elif text == '/bg':
+                    result.append('\033[%sm' % Back.RESET)
+                else:
+                    result.append('\033[%sm' % Style.RESET_ALL)
+        return ''.join(result)
 
 class ColoringMessage(str):
     __fields__ = ('_messages',)
