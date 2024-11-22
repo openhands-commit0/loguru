@@ -10,10 +10,12 @@ import sysconfig
 import tokenize
 import traceback
 if sys.version_info >= (3, 11):
+    from builtins import ExceptionGroup
 else:
     try:
         from exceptiongroup import ExceptionGroup
     except ImportError:
+        ExceptionGroup = None
 
 class SyntaxHighlighter:
     _default_style = {'comment': '\x1b[30m\x1b[1m{}\x1b[0m', 'keyword': '\x1b[35m\x1b[1m{}\x1b[0m', 'builtin': '\x1b[1m{}\x1b[0m', 'string': '\x1b[36m{}\x1b[0m', 'number': '\x1b[34m\x1b[1m{}\x1b[0m', 'operator': '\x1b[35m\x1b[1m{}\x1b[0m', 'punctuation': '\x1b[1m{}\x1b[0m', 'constant': '\x1b[36m\x1b[1m{}\x1b[0m', 'identifier': '\x1b[1m{}\x1b[0m', 'other': '{}'}
