@@ -91,6 +91,8 @@ class AnsiParser:
                         raise ValueError("Closing tag '%s' does not match opening tag '%s'" % (tag, expected_tag))
                     self._tokens.append((TokenType.CLOSING, tag))
                 else:
+                    if tag in ('red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'white', 'black'):
+                        tag = 'fg ' + tag
                     self._tags.append(tag)
                     self._tokens.append((TokenType.ANSI, tag))
             pos = end
