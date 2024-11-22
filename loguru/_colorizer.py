@@ -71,6 +71,34 @@ class AnsiParser:
         self._tokens = []
         self._tags = []
         self._color_tokens = []
+        self._text = []
+
+    def feed(self, text):
+        pos = 0
+        for match in self._regex_tag.finditer(text):
+            start, end = match.span()
+            if start > pos:
+                self._tokens.append((TokenType.TEXT, text[pos:start]))
+            if match.group()[0] == '\\':
+                self._tokens.append((TokenType.TEXT, match.group()[1:]))
+            else:
+                tag = match.group(1)
+                if tag.startswith('/'):
+                    if not self._tags:
+                        raise ValueError("Closing tag '%s' found without corresponding opening tag" % tag)
+                    expected_tag = self._tags.pop()
+                    if tag[1:] != expected_tag:
+                        raise ValueError("Closing tag '%s' does not match opening tag '%s'" % (tag, expected_tag))
+                    self._tokens.append((TokenType.CLOSING, tag))
+                else:
+                    self._tags.append(tag)
+                    self._tokens.append((TokenType.ANSI, tag))
+            pos = end
+        if pos < len(text):
+            self._tokens.append((TokenType.TEXT, text[pos:]))
+        if self._tags:
+            raise ValueError("Unclosed tags: %s" % ', '.join(self._tags))
+        return self._tokens
 
 class ColoringMessage(str):
     __fields__ = ('_messages',)
