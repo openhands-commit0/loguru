@@ -1,4 +1,13 @@
 from os import environ
+
+def env(key, type_, default):
+    if key not in environ:
+        return default
+    value = environ[key]
+    if type_ == bool:
+        return value.lower() in ('true', '1', 'yes', 'on')
+    return type_(value)
+
 LOGURU_AUTOINIT = env('LOGURU_AUTOINIT', bool, True)
 LOGURU_FORMAT = env('LOGURU_FORMAT', str, '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>')
 LOGURU_FILTER = env('LOGURU_FILTER', str, None)
