@@ -194,6 +194,44 @@ class AnsiParser:
                     result.append('\033[%sm' % Style.RESET_ALL)
         return ''.join(result)
 
+    def strip(self, tokens):
+        result = []
+        for token_type, text in tokens:
+            if token_type == TokenType.TEXT:
+                result.append(text)
+        return ''.join(result)
+
+    def colorize(self, tokens, style):
+        result = []
+        for token_type, text in tokens:
+            if token_type == TokenType.TEXT:
+                result.append(text)
+            elif token_type == TokenType.ANSI:
+                if text.startswith('fg '):
+                    color = getattr(Fore, text[3:].upper(), None)
+                    if color is not None:
+                        result.append('\033[%sm' % color)
+                elif text.startswith('bg '):
+                    color = getattr(Back, text[3:].upper(), None)
+                    if color is not None:
+                        result.append('\033[%sm' % color)
+                elif text in ('red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'white', 'black'):
+                    color = getattr(Fore, text.upper(), None)
+                    if color is not None:
+                        result.append('\033[%sm' % color)
+                else:
+                    style_code = getattr(Style, text.upper(), None)
+                    if style_code is not None:
+                        result.append('\033[%sm' % style_code)
+            elif token_type == TokenType.CLOSING:
+                if text == '/fg':
+                    result.append('\033[%sm' % Fore.RESET)
+                elif text == '/bg':
+                    result.append('\033[%sm' % Back.RESET)
+                else:
+                    result.append('\033[%sm' % Style.RESET_ALL)
+        return ''.join(result)
+
 class ColoringMessage(str):
     __fields__ = ('_messages',)
 
