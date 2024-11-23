@@ -109,11 +109,14 @@ class AnsiParser:
             pos = end
         if pos < len(text):
             self._tokens.append((TokenType.TEXT, text[pos:]))
+        return self._tokens
 
     def done(self, strict=True):
         if strict and self._tags:
             raise ValueError("Unclosed tags: %s" % ', '.join(self._tags))
-        return self._tokens
+        tokens = self._tokens
+        self.reset()
+        return tokens
 
     def strip(self, tokens):
         result = []
